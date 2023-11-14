@@ -7,7 +7,7 @@ from pages import dashboard, prediction, team
 # 메인 페이지를 보여주는 함수입니다.
 def main():
     st.title("메인화면")
-    image_path = "./로고.png"
+    image_path = "./images/로고.png"
     st.image(image_path, caption='', use_column_width=True)
     # 메인 페이지의 내용을 여기에 추가합니다.
     '''
