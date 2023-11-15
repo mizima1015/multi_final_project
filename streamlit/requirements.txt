@@ -18,3 +18,4 @@ millify
 geopandas
 folium
 yfinance
+google-cloud-storage
