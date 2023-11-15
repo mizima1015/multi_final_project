@@ -6,8 +6,11 @@ import joblib
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 
-plt.rcParams['font.family'] = 'Malgun Gothic'
+
+plt.rcParams['font.family'] = 'NanumBarunGothic'
 plt.rcParams['axes.unicode_minus'] = False
+# plt.rcParams['font.family'] = 'Malgun Gothic'
+# plt.rcParams['axes.unicode_minus'] = False
 
 # 모델을 불러오는 함수
 def load_model(model_name):
