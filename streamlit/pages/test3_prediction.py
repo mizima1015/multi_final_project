@@ -1,13 +1,24 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 import joblib
+import matplotlib.pyplot as plt
+from matplotlib import font_manager as fm, rc
 
-# 기존 함수들...
+# 사용자 정의 폰트 경로
+font_path = './customFonts/NanumGothic-Regular.ttf'
+
+# 폰트 매니저에 폰트를 등록
+font_prop = fm.FontProperties(fname=font_path)
+fm.fontManager.addfont(font_path)
+rc('font', family=font_prop.get_name())
+
+# 한글 마이너스 기호 문제 해결을 위한 설정
+rc('axes', unicode_minus=False)
+
 # 모델을 불러오는 함수
 def load_model(model_name):
-    # 모델 파일명은 슬래시 대신 밑줄로 구분된 형식이어야 합니다.
     filename = os.path.join('./models/', f'{model_name.replace("/", "_")}_xgb_model.pkl')
     loaded_model = joblib.load(filename)
     return loaded_model
@@ -18,12 +29,22 @@ def create_encoded_columns(terminal_name, all_terminals):
     encoded_data[f'터미널이름_{terminal_name}'] = 1
     return encoded_data
 
+# 막대 그래프를 그리는 함수
+def plot_bar_chart(predictions, labels):
+    plt.figure(figsize=(10, 5))
+    plt.bar(labels, predictions, color='skyblue')
+    plt.xlabel('품목')
+    plt.ylabel('물류량')
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+    st.pyplot(plt)
+
 # 예측 페이지를 보여주는 함수
 def show_prediction_page(all_terminals):
     st.title("물류량 예측")
 
     # 품목 선택
-    model_options = ['가구/인테리어', '기타', '도서/음반', '디지털/가전', '생활/건강', 
+    model_options = ['가구/인테리어', '기타', '도서/음반', '디지털/가전', '생활/건강',
                      '스포츠/레저', '식품', '출산/육아', '패션의류', '패션잡화', '화장품/미용']
     model_name = st.selectbox('품목을 선택해주세요', model_options)
 
@@ -38,10 +59,10 @@ def show_prediction_page(all_terminals):
     # 기타 사용자 입력
     population = st.number_input('총 인구', min_value=0)
     # ... 기타 필요한 변수들을 입력받습니다.
-    
+
     terminal_name = st.selectbox('터미널 이름 선택', all_terminals)
     encoded_columns = create_encoded_columns(terminal_name, all_terminals)
-    
+
     # 예측 버튼을 생성합니다.
     if st.button('예측'):
         total_prediction = 0
@@ -71,25 +92,50 @@ def show_prediction_page(all_terminals):
             new_data.update(encoded_columns)
             new_data_df = pd.DataFrame(new_data)
 
-            # 선택된 모델로 로드합니다.
+            # 모델 로드
             loaded_model = load_model(model_name)
 
-            # 모델을 사용하여 예측을 수행합니다.
+            # 예측 수행
             prediction = loaded_model.predict(new_data_df)
-            
-            # 예측 결과를 합산합니다.
-            total_prediction += prediction[0]
 
-        # 총 예측 결과를 사용자에게 보여줍니다.
+            # 예측 결과 합산
+            total_prediction += prediction[0]
+            current_time = datetime.now()
+
+            labels_list = []
+            predictions_list = []
+            predictions_list.append(prediction[0])
+            labels_list.append(f"{model_name} (time:{current_time.strftime('%H:%M:%S')})")
+
+        # 예측 결과 리스트에 추가
+        if 'predictions' not in st.session_state:
+            st.session_state.predictions = predictions_list
+            st.session_state.labels = labels_list
+        else:
+            st.session_state.predictions.extend(predictions_list)
+            st.session_state.labels.extend(labels_list)
+
+        # 예측 결과가 11개를 초과하면 가장 오래된 예측을 제거
+        if len(st.session_state.predictions) > 11:
+            st.session_state.predictions.pop(0)
+            st.session_state.labels.pop(0)
+
+        # 예측 결과 출력
         st.write(f'선택된 날짜 범위에 대한 예측된 물류량 합산: {total_prediction:.2f}')
 
-# 모든 가능한 터미널 이름 리스트와 모델 옵션...
-# 모든 가능한 터미널 이름 리스트
+        # 막대 그래프로 결과 표시
+        plot_bar_chart(st.session_state.predictions, st.session_state.labels)
+
+    if st.button('그래프 초기화'):
+        st.session_state.predictions.clear()
+        st.session_state.labels.clear()
+        st.experimental_rerun()
+
 all_terminals = ['강남', '강동', '강북', '강서', '관악', '광진', '구로', '금천', '노원', '도봉', 
                  '동대문', '동작', '마포', '서대문', '서초', '성동', '성북', '송파', '양천', 
                  '영등포', '용산', '은평', '종로', '중구', '중랑']
 
+
 # 예측 페이지를 보여줍니다.
 if __name__ == "__main__":
     show_prediction_page(all_terminals)
-
