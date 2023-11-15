@@ -4,9 +4,18 @@ from datetime import datetime
 import os
 import joblib
 import matplotlib.pyplot as plt
+from matplotlib import font_manager as fm, rc
 
-plt.rcParams['font.family'] = 'NanumGothic'
-plt.rcParams['axes.unicode_minus'] = False
+# 사용자 정의 폰트 경로
+font_path = './customFonts/NanumGothic-Regular.ttf'
+
+# 폰트 매니저에 폰트를 등록
+font_prop = fm.FontProperties(fname=font_path)
+fm.fontManager.addfont(font_path)
+rc('font', family=font_prop.get_name())
+
+# 한글 마이너스 기호 문제 해결을 위한 설정
+rc('axes', unicode_minus=False)
 
 # 모델을 불러오는 함수
 def load_model(model_name):
