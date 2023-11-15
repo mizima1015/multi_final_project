@@ -5,6 +5,7 @@ import os
 import joblib
 import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm, rc
+import numpy as np
 
 # 사용자 정의 폰트 경로
 font_path = './customFonts/NanumGothic-Regular.ttf'
