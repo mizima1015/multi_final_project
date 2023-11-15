@@ -31,12 +31,22 @@ def create_encoded_columns(terminal_name, all_terminals):
 
 # 막대 그래프를 그리는 함수
 def plot_bar_chart(predictions, labels):
+    # 색상 배열을 생성합니다. 이 배열은 예측값의 개수만큼의 색상을 viridis 색상맵에서 균등하게 선택합니다.
+    colors = plt.cm.viridis(np.linspace(0, 1, len(predictions)))
+    
     plt.figure(figsize=(10, 5))
-    plt.bar(labels, predictions, color='skyblue')
+    bars = plt.bar(labels, predictions, color=colors)  # 색상 배열을 막대 그래프에 적용합니다.
+    
+    # 막대 그래프 위에 값을 표시합니다.
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 2, yval, round(yval, 1), va='bottom', ha='center')
+    
     plt.xlabel('품목')
     plt.ylabel('물류량')
     plt.xticks(rotation=90)
     plt.tight_layout()
+    # 스트림릿에서 그래프를 보여주기 위해 st.pyplot를 호출합니다.
     st.pyplot(plt)
 
 # 예측 페이지를 보여주는 함수
