@@ -35,7 +35,7 @@ def plot_bar_chart(predictions, labels):
     # 색상 배열을 생성합니다. 이 배열은 예측값의 개수만큼의 색상을 viridis 색상맵에서 균등하게 선택합니다.
     colors = plt.cm.viridis(np.linspace(0, 1, len(predictions)))
     
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(10, 8))
     bars = plt.bar(labels, predictions, color=colors)  # 색상 배열을 막대 그래프에 적용합니다.
     
     # 막대 그래프 위에 값을 표시합니다.
