@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 import streamlit as st
-from streamlit_option_menu import option_menu
-from pages import dashboard, prediction, team
+from pages import dashboard, prediction, team, test2_prediction, test3_prediction, test_prediction
 
 
 # 메인 페이지를 보여주는 함수입니다.
