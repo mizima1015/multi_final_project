@@ -6,6 +6,7 @@ import joblib
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 
+fm._rebuild()
 plt.rc('font', family='NanumBarunGothic')
 plt.rcParams['axes.unicode_minus'] = False
 
