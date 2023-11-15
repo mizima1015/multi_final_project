@@ -3,7 +3,12 @@ import pandas as pd
 from datetime import datetime
 import joblib
 import matplotlib.pyplot as plt
-from google.cloud import storage
+# from google.cloud import storage
+# 한글폰트 적용
+# 폰트 적용
+import os
+import matplotlib.font_manager as fm  # 폰트 관련 용도 as fm
+
 
 # GCS에서 모델 파일을 불러오는 함수
 def load_model_from_gcs(bucket_name, model_file_name):
