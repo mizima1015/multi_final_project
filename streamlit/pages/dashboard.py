@@ -9,7 +9,8 @@ def show_dashboard():
     tableau_url = "http://deliverease-multifpp.com"
     st.markdown(f"[여기를 클릭하여 대시보드를 보세요]({tableau_url})", unsafe_allow_html=True)
 
-    components.iframe(tableau_url, width=1000, height=1500)
+    # components.iframe(tableau_url, width=1000, height=1500)
+
 
 if __name__ == "__main__":
     show_dashboard()

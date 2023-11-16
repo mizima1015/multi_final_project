@@ -35,8 +35,15 @@ def plot_bar_chart(predictions, labels):
     # 색상 배열을 생성합니다. 이 배열은 예측값의 개수만큼의 색상을 viridis 색상맵에서 균등하게 선택합니다.
     colors = plt.cm.viridis(np.linspace(0, 1, len(predictions)))
     
+    if len(predictions) == 1:
+        bar_width = 0.2
+    elif len(predictions) == 2:
+        bar_width = 0.4
+    else :
+        bar_width =0.6
+
     plt.figure(figsize=(10, 8))
-    bars = plt.bar(labels, predictions, color=colors)  # 색상 배열을 막대 그래프에 적용합니다.
+    bars = plt.bar(labels, predictions, color=colors, width=bar_width, label='범례이름')  # 색상 배열을 막대 그래프에 적용합니다.
     
     # 막대 그래프 위에 값을 표시합니다.
     for bar in bars:
@@ -46,7 +53,12 @@ def plot_bar_chart(predictions, labels):
     plt.xlabel('품목')
     plt.ylabel('물류량')
     plt.xticks(rotation=90)
+
+    plt.xlim(-0.5, len(labels)-0.5)
+    
+    
     plt.tight_layout()
+    plt.legend(loc='best')
     # 스트림릿에서 그래프를 보여주기 위해 st.pyplot를 호출합니다.
     st.pyplot(plt)
 
@@ -127,7 +139,7 @@ def show_prediction_page(all_terminals):
             st.session_state.labels.extend(labels_list)
 
         # 예측 결과가 11개를 초과하면 가장 오래된 예측을 제거
-        if len(st.session_state.predictions) > 11:
+        if len(st.session_state.predictions) > 12:
             st.session_state.predictions.pop(0)
             st.session_state.labels.pop(0)
 
@@ -135,6 +147,7 @@ def show_prediction_page(all_terminals):
         st.write(f'선택된 날짜 범위에 대한 예측된 물류량 합산: {total_prediction:.2f}')
 
         # 막대 그래프로 결과 표시
+        plt.clf()
         plot_bar_chart(st.session_state.predictions, st.session_state.labels)
 
     if st.button('그래프 초기화'):
