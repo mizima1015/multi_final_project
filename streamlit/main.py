@@ -10,7 +10,7 @@ from pages import dashboard, prediction, team, test3_prediction
 def main():
     st.set_page_config(layout="wide")
     # st.title("메인화면")
-    image_path = "./images/main1.png"
+    image_path = "./images/main2.png"
     st.image(image_path, caption='', use_column_width=True)
     
     # 메인 페이지의 내용을 여기에 추가합니다.
