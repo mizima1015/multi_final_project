@@ -18,10 +18,6 @@ def main():
     # st.title("HTML CSS 마크다운 적용")
     html_css = """
     <style>
-    .reportview-container {
-    background: url('https://raw.githubusercontent.com/mizima1015/multi_final_project/main/streamlit/images/main2.png');
-    background-size: cover;
-    }
 
     th,td{
         border-bottom: 1px solid #ddd;
