@@ -10,7 +10,7 @@ from pages import dashboard, prediction, team, test3_prediction
 def main():
     st.set_page_config(layout="wide")
     # st.title("메인화면")
-    image_path = "./images/main2.png"
+    image_path = "./images/main3.png"
     st.image(image_path, caption='', use_column_width=True)
     
     # 메인 페이지의 내용을 여기에 추가합니다.
@@ -43,7 +43,8 @@ def main():
     position: relative;
     top: 30px;
     bottom: 0;
-    left: 0;
+    left: 0px;
+    right:30px;
     width: 100%;
     background: linear-gradient(to right, rgb(204, 193, 80), rgb(247, 245, 225));
     color: #888;
