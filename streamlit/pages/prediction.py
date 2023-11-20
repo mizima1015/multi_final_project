@@ -42,25 +42,36 @@ def plot_bar_chart(predictions, labels):
     else :
         bar_width =0.6
 
-    plt.figure(figsize=(10, 8))
-    bars = plt.bar(labels, predictions, color=colors, width=bar_width, label='범례이름')  # 색상 배열을 막대 그래프에 적용합니다.
-    
+    plt.figure(figsize=(10, 7))
+    bars = []  # 막대 객체를 담을 리스트
+
+    # 각 예측에 대해 개별적으로 막대를 그리고 레이블을 지정합니다.
+    for i, (label, prediction) in enumerate(zip(labels, predictions)):
+        bar = plt.bar(label, prediction, color=colors[i], width=bar_width, label=label)
+        bars.append(bar)
+
     # 막대 그래프 위에 값을 표시합니다.
     for bar in bars:
-        yval = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width() / 2, yval, round(yval, 1), va='bottom', ha='center')
+        for item in bar:
+            yval = item.get_height()
+            plt.text(item.get_x() + item.get_width() / 2, yval, round(yval, 1), va='bottom', ha='center')
     
     plt.xlabel('품목')
     plt.ylabel('물류량')
     plt.xticks(rotation=90)
 
+    # x축의 범위를 설정하여 뚱뚱한 막대가 나오지 않도록 조정합니다.
     plt.xlim(-0.5, len(labels)-0.5)
     
-    
     plt.tight_layout()
-    plt.legend(loc='best')
-    # 스트림릿에서 그래프를 보여주기 위해 st.pyplot를 호출합니다.
+    
+    # 범례를 추가합니다. 'best' 위치에 표시되도록 설정합니다.
+    plt.legend(loc='lower center', bbox_to_anchor=(0.5, 1), ncol=3)
+
+
+
     st.pyplot(plt)
+
 
 # 예측 페이지를 보여주는 함수
 def show_prediction_page(all_terminals):

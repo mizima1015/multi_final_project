@@ -1,11 +1,18 @@
 # -*- coding:utf-8 -*-
 import streamlit as st
 from pages import dashboard, prediction, team, test3_prediction
-
-# 서버 streamlit 실행시 아래코드로 실행하기 
+ 
 # nohup streamlit run main.py > streamlit.log 2>&1 &
+# ----- 서버 streamlit 실행-----
+
 # 링크 : http://34.64.204.232:8501/
 # 링크2: http://deliverease-multifpp.com
+# ----- 서비스 접속 링크 -----
+
+# sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8501
+# sudo apt-get install iptables-persistent
+# ------ 포트포워딩 -----
+
 # 메인 페이지를 보여주는 함수입니다.
 def main():
     st.set_page_config(layout="wide")
