@@ -73,10 +73,16 @@ def plot_bar_chart(predictions, labels):
 def show_prediction_page(all_terminals):
     st.set_page_config(layout="wide")
     st.title("물류량 예측")
-    model_options = ['가구/인테리어', '기타', '도서/음반', '디지털/가전', '생활/건강', '스포츠/레저', '식품', '출산/육아', '패션의류', '패션잡화', '화장품/미용']
+    model_options = ['전체','가구/인테리어', '기타', '도서/음반', '디지털/가전', '생활/건강', '스포츠/레저', '식품', '출산/육아', '패션의류', '패션잡화', '화장품/미용']
     selected_models = st.multiselect('품목을 선택해주세요', model_options)
     start_date = st.date_input('시작 날짜를 선택하세요', datetime.today())
     end_date = st.date_input('종료 날짜를 선택하세요', datetime.today())
+    holiday_list = ['예','아니오']
+    holiday=st.selectbox('공휴일인가요?', holiday_list)
+    if holiday=='예':
+        holiday = 1
+    if holiday == '아니오':
+        holiday = 0
     if start_date > end_date:
         st.error('시작 날짜는 종료 날짜보다 클 수 없습니다.')
         return
@@ -100,7 +106,7 @@ def show_prediction_page(all_terminals):
                 '40-50대 비율': [33.83],
                 '60-70대 비율': [18.32],
                 '80대 이상 비율':[3.01],
-                '공휴일': [0],
+                '공휴일': [holiday],
                 '년': [single_date.year],
                 '소득2천만원주민비율': [0.09],
                 '소득3천만원주민비율': [0.28],
@@ -109,7 +115,7 @@ def show_prediction_page(all_terminals):
                 '소득6천만원주민비율': [0.07],
                 '소득7천만원이상주민비율': [0.18],
                 '소득7천만원주민비율': [0.05],
-                '요일': [2],
+                '요일': [single_date.day_of_week],
                 '월': [single_date.month],
                 '일': [single_date.day],
                 '총 인구': [population],#534103
@@ -121,11 +127,11 @@ def show_prediction_page(all_terminals):
                 total_prediction += prediction[0]
             current_time = datetime.now()
             st.session_state.predictions.append(total_prediction)
-            st.session_state.labels.append(f"{model_name} (time:{current_time.strftime('%H:%M:%S')})")
+            st.session_state.labels.append(f"{model_name} / {terminal_name} / (time:{current_time.strftime('%H:%M:%S')})")
         if len(st.session_state.predictions) > 12:
             st.session_state.predictions = st.session_state.predictions[-12:]
             st.session_state.labels = st.session_state.labels[-12:]
-        st.write(f'선택된 날짜 범위에 대한 예측된 물류량 합산: {sum(st.session_state.predictions):.2f}')
+        st.write(f'예측된 물류량 합산: {sum(st.session_state.predictions):.2f}')
         plt.clf()
         plot_bar_chart(st.session_state.predictions, st.session_state.labels)
     
