@@ -73,7 +73,7 @@ def plot_bar_chart(predictions, labels):
 def show_prediction_page(all_terminals):
     st.set_page_config(layout="wide")
     st.title("물류량 예측")
-    model_options = ['전체','가구/인테리어', '기타', '도서/음반', '디지털/가전', '생활/건강', '스포츠/레저', '식품', '출산/육아', '패션의류', '패션잡화', '화장품/미용']
+    model_options = ['가구/인테리어', '기타', '도서/음반', '디지털/가전', '생활/건강', '스포츠/레저', '식품', '출산/육아', '패션의류', '패션잡화', '화장품/미용']
     selected_models = st.multiselect('품목을 선택해주세요', model_options)
     start_date = st.date_input('시작 날짜를 선택하세요', datetime.today())
     end_date = st.date_input('종료 날짜를 선택하세요', datetime.today())
