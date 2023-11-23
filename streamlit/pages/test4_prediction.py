@@ -17,8 +17,13 @@ rc('font', family=font_prop.get_name())
 rc('axes', unicode_minus=False)
 
 # 모델을 불러오는 함수
-def load_model(model_name):
-    filename = os.path.join('./models/', f'{model_name.replace("/", "_")}_xgb_model2.pkl')
+def load_model(model_name, model_type):
+    model_suffix = {
+        '전체 물류량': '',
+        '수입': '_rec',
+        '수출': '_send'
+    }
+    filename = os.path.join('./models/', f'{model_name.replace("/", "_")}{model_suffix[model_type]}_xgb_model.pkl')
     loaded_model = joblib.load(filename)
     return loaded_model
 
@@ -71,8 +76,14 @@ def plot_bar_chart(predictions, labels):
 def show_prediction_page(all_terminals):
     st.set_page_config(layout="wide")
     st.title("물류량 예측")
-    # type_options = ['전체 물류량', '수입', '수출']
-    # selected_types = st.selectbox['어떤 물류를 확인해 볼까요?', type_options]
+    """
+    이 곳에선 물류량 예측을 해보실 수 있습니다. 그래프는 11개까지 누적해서 그릴 수 있으며, 
+    그래프를 처음부터 그리고 싶다면 아래 그래프 초기화버튼을 눌러주시기 바랍니다.
+
+    품목 중 전체 옵션을 선택하시면 모든 11개의 품목 그래프를 한 번에 그리실 수 있습니다.
+    """
+    type_options = ['전체 물류량', '수입', '수출']
+    selected_types = st.selectbox('어떤 물류를 확인해 볼까요?', type_options)
     model_options = ['전체', '가구/인테리어', '기타', '도서/음반', '디지털/가전', '생활/건강', '스포츠/레저', '식품', '출산/육아', '패션의류', '패션잡화', '화장품/미용']
     selected_models = st.multiselect('품목을 선택해주세요', model_options)
     start_date = st.date_input('시작 날짜를 선택하세요', datetime.today())
@@ -101,30 +112,29 @@ def show_prediction_page(all_terminals):
         if '전체' in selected_models:
             selected_models = model_options[1:]  # 전체 품목을 가져옵니다.
 
-        models = {model_name: load_model(model_name) for model_name in selected_models}
-        
+        models = {model_name: load_model(model_name, selected_types) for model_name in selected_models}
         
         for model_name in selected_models:
             total_prediction = 0
             loaded_model = models[model_name]
             for single_date in pd.date_range(start_date, end_date):
                 new_data = {
-                '년': [single_date.year],
-                '월': [single_date.month],
-                '일': [single_date.day],
-                '요일': [single_date.day_of_week],
-                '공휴일': [holiday],
+                'YEAR': [single_date.year],
+                'MONTH': [single_date.month],
+                'DAY': [single_date.day],
+                'DAY_OF': [single_date.day_of_week],
+                'HOLIDAY': [holiday],
             # ... 기타 필요한 변수들
              }
-            year = max(2021, min(single_date.year, 2023))
-            if year == 2023:
-                gu_df = gu_df23
-            if year == 2022:
-                gu_df = gu_df22
-            if year == 2021:
-                gu_df = gu_df21
-
-                new_data.update(dict(zip(gu_columns, gu_df)))
+                year = single_date.year
+                if year >= 2023:
+                    year = 2023
+                if year <= 2021:
+                    year = 2021
+                gu_df = df2[(df2['YEAR'] == year) & (df2['WORK_GU'] == terminal_name)].iloc[0]
+                for column in gu_columns:
+                    new_data[column] = [gu_df[column]]
+                
                 new_data.update(encoded_columns)
                 new_data_df = pd.DataFrame(new_data)
                 prediction = loaded_model.predict(new_data_df)
@@ -137,7 +147,7 @@ def show_prediction_page(all_terminals):
         st.session_state.predictions.extend(total_predictions)
         st.session_state.labels.extend(labels)
 
-        if len(st.session_state.predictions) > 12:
+        if len(st.session_state.predictions) > 11:
             st.session_state.predictions = st.session_state.predictions[-12:]
             st.session_state.labels = st.session_state.labels[-12:]
 
@@ -149,6 +159,12 @@ def show_prediction_page(all_terminals):
         st.session_state.predictions.clear()
         st.session_state.labels.clear()
         st.experimental_rerun()
+    
+    """
+    현재 예측 모델을 만들기 위해 사용한 변수 columns는 총 x개이며, 그 리스트는 아래와 같습니다.
+
+    list=[]
+    """
 
 all_terminals = ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', 
                      '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', 
@@ -166,9 +182,10 @@ gu_columns = ['TOTAL_PEOPLE', 'RATE_UNDER 20s', 'RATE_20s-30s', 'RATE_40s-50s',
                  'TOTAL_AVG_AGE', 'MEN_AVG_AGE', 'WOMEN_AVG_AGE', 'TOTAL_LIB', 'TOTAL_REC', 'RESTAURANTS', 'CATERING', 'FOOD_PROCESS', 'FOOD_TRANS_SALES', 
                  'HEALTH_FUNCTION_SALES', 'TOTAL_ELEC', 'RESIDENTIAL', 'GENERAL', 'EDUCATIONAL', 'INDUSTRIAL', 'AGRICULTURAL', 'STREETLIGHT', 'NIGHTUSE', 'MANUFACTURING', 
                  'RETAIL', 'TOTAL_MED']
-gu_df23 = [387940.0, 11.4, 28.57, 30.86, 24.89, 4.28, 0.12, 0.39, 0.27, 0.11, 0.05, 0.02, 0.03, 95.7, 95.0, 95.95959595959596, 11211742.0, 587758007.0, 86.7, 0.65, 784.0, 264.0, 10.0, 271.0, 238.0, 0.0, 151513.0, 111741.0, 14726.0, 3914.0, 784.0, 13.0, 20334.0, 15.0, 20695.0, 15724.0, 4971.0, 7778.0, 5365.0, 2413.0, 470.0, 295.0, 175.0, 12447.0, 10064.0, 2383.0, 118357.0, 17751.0, 1668.0, 12765.0, 3318.0, 4466.0, 35535.0, 1484.0, 21092.0, 187413.0, 83492.0, 45637.0, 30591.0, 21598.0, 4854.0, 955.0, 221.0, 39.0, 17.0, 9.0, 87.92, 87.19, 66.06, 15.39, 13.41, 46.2, 45.4, 47.0, 5.0, 6974.0, 5095.0, 215.0, 579.0, 319.0, 766.0, 1161372.0, 561516.0, 481863.0, 31298.0, 72104.0, 378.0, 10630.0, 3582.0, 47.0, 768.0, 815.0] 
-gu_df22 = [390140.0, 11.73, 28.82, 31.26, 24.17, 4.03, 0.12, 0.39, 0.27, 0.11, 0.05, 0.02, 0.03, 95.7, 95.0, 95.95959595959596, 11211742.0, 587758007.0, 86.7, 0.659, 784.0, 264.0, 10.0, 271.0, 238.0, 0.0, 151513.0, 111741.0, 14726.0, 3914.0, 784.0, 13.0, 20334.0, 15.0, 20695.0, 15724.0, 4971.0, 7778.0, 5365.0, 2413.0, 470.0, 295.0, 175.0, 12447.0, 10064.0, 2383.0, 118357.0, 17751.0, 1668.0, 12765.0, 3318.0, 4466.0, 35535.0, 1484.0, 21092.0, 187413.0, 83492.0, 45637.0, 30591.0, 21598.0, 4854.0, 955.0, 221.0, 39.0, 17.0, 9.0, 87.92, 87.19, 66.06, 15.39, 13.41, 45.3, 44.5, 46.1, 5.0, 6974.0, 5095.0, 215.0, 579.0, 319.0, 766.0, 1161372.0, 561516.0, 481863.0, 31298.0, 72104.0, 378.0, 10630.0, 3582.0, 47.0, 768.0, 815.0]
-gu_df21 = [391885.0, 12.05, 28.94, 31.81, 23.52, 3.67, 0.12, 0.39, 0.27, 0.11, 0.05, 0.02, 0.03, 95.7, 95.0, 95.95959595959596, 11211742.0, 587758007.0, 86.7, 0.65, 784.0, 264.0, 10.0, 271.0, 238.0, 0.0, 150392.0, 109582.0, 13247.0, 3699.0, 1422.0, 2.0, 22440.0, 15.0, 19260.0, 14851.0, 4409.0, 7074.0, 4865.0, 2209.0, 1366.0, 833.0, 533.0, 10820.0, 9153.0, 1667.0, 114488.0, 17995.0, 1701.0, 12967.0, 3327.0, 4423.0, 33916.0, 1503.0, 21188.0, 187413.0, 83492.0, 45637.0, 30591.0, 21598.0, 4854.0, 955.0, 221.0, 39.0, 17.0, 9.0, 87.92, 87.19, 66.06, 15.39, 13.41, 45.7, 44.9, 46.5, 5.0, 6974.0, 5095.0, 215.0, 579.0, 319.0, 766.0, 1161372.0, 561516.0, 481863.0, 31298.0, 72104.0, 378.0, 10630.0, 3582.0, 47.0, 768.0, 815.0]
+
+df2 = pd.read_csv("./models/work_info.csv")
+
+
 
 if __name__ == "__main__":
     show_prediction_page(all_terminals)

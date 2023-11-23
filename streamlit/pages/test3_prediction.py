@@ -24,8 +24,8 @@ def load_model(model_name):
 
 # 원-핫 인코딩된 터미널 이름 컬럼을 생성하는 함수
 def create_encoded_columns(terminal_name, all_terminals):
-    encoded_data = {f'터미널이름_{terminal}': 0 for terminal in all_terminals}
-    encoded_data[f'터미널이름_{terminal_name}'] = 1
+    # 모든 가능한 구 이름을 나열합니다.
+    encoded_data = {f'WORK_GU_{terminal}': 1 if terminal == terminal_name else 0 for terminal in all_terminals}
     return encoded_data
 
 # 막대 그래프를 그리는 함수
@@ -56,90 +56,133 @@ def plot_bar_chart(predictions, labels):
     
     plt.xlabel('품목')
     plt.ylabel('물류량')
-    plt.xticks(rotation=90)
+    plt.xticks(range(len(labels)),[label.split("_")[0] for label in labels],rotation=90)
 
     # x축의 범위를 설정하여 뚱뚱한 막대가 나오지 않도록 조정합니다.
     plt.xlim(-0.5, len(labels)-0.5)
     
-    plt.tight_layout()
-    
+    plt.tight_layout()   
     # 범례를 추가합니다. 'best' 위치에 표시되도록 설정합니다.
-    plt.legend(loc='lower center', bbox_to_anchor=(0.5, 1), ncol=3)
-
-
+    plt.legend([label.split("_")[1] + "/" + label.split("_")[2] for label in labels],loc='lower center', bbox_to_anchor=(0.5, 1), ncol=3)
 
     st.pyplot(plt)
+
 # 예측 페이지를 보여주는 함수
 def show_prediction_page(all_terminals):
     st.set_page_config(layout="wide")
     st.title("물류량 예측")
-    model_options = ['가구/인테리어', '기타', '도서/음반', '디지털/가전', '생활/건강', '스포츠/레저', '식품', '출산/육아', '패션의류', '패션잡화', '화장품/미용']
+    """
+    이 곳에선 물류량 예측을 해보실 수 있습니다. 그래프는 11개까지 누적해서 그릴 수 있으며, 
+    그래프를 처음부터 그리고 싶다면 아래 그래프 초기화버튼을 눌러주시기 바랍니다.
+
+    품목 중 전체 옵션을 선택하시면 모든 11개의 품목 그래프를 한 번에 그리실 수 있습니다.
+    """
+    # type_options = ['전체 물류량', '수입', '수출']
+    # selected_types = st.selectbox['어떤 물류를 확인해 볼까요?', type_options]
+    model_options = ['전체', '가구/인테리어', '기타', '도서/음반', '디지털/가전', '생활/건강', '스포츠/레저', '식품', '출산/육아', '패션의류', '패션잡화', '화장품/미용']
     selected_models = st.multiselect('품목을 선택해주세요', model_options)
     start_date = st.date_input('시작 날짜를 선택하세요', datetime.today())
     end_date = st.date_input('종료 날짜를 선택하세요', datetime.today())
-    holiday_list = ['예','아니오']
-    holiday=st.selectbox('공휴일인가요?', holiday_list)
-    if holiday=='예':
-        holiday = 1
-    if holiday == '아니오':
-        holiday = 0
+    holiday_list = ['아니오', '예']
+    holiday = st.selectbox('공휴일인가요?', holiday_list)
+    holiday = 1 if holiday == '예' else 0
     if start_date > end_date:
         st.error('시작 날짜는 종료 날짜보다 클 수 없습니다.')
         return
-    population = st.number_input('총 인구', min_value=0)
     terminal_name = st.selectbox('터미널 이름 선택', all_terminals)
     encoded_columns = create_encoded_columns(terminal_name, all_terminals)
 
     if st.button('예측'):
+        if '전체' in selected_models and len(selected_models) > 1:
+            st.error('전체를 선택한 경우 다른 품목은 선택할 수 없습니다.')
+            return
+        
         if 'predictions' not in st.session_state:
             st.session_state.predictions = []
             st.session_state.labels = []
+
+        total_predictions = []
+        labels = []
+
+        if '전체' in selected_models:
+            selected_models = model_options[1:]  # 전체 품목을 가져옵니다.
+
         models = {model_name: load_model(model_name) for model_name in selected_models}
+        
+        
         for model_name in selected_models:
             total_prediction = 0
             loaded_model = models[model_name]
             for single_date in pd.date_range(start_date, end_date):
-                # ... 데이터 준비 및 예측 로직 ...
-                new_data = {                
-                '20-30대 비율': [27.47],
-                '20대 미만 비율': [17.36],
-                '40-50대 비율': [33.83],
-                '60-70대 비율': [18.32],
-                '80대 이상 비율':[3.01],
-                '공휴일': [holiday],
-                '년': [single_date.year],
-                '소득2천만원주민비율': [0.09],
-                '소득3천만원주민비율': [0.28],
-                '소득4천만원주민비율': [0.21],
-                '소득5천만원주민비율': [0.13],
-                '소득6천만원주민비율': [0.07],
-                '소득7천만원이상주민비율': [0.18],
-                '소득7천만원주민비율': [0.05],
-                '요일': [single_date.day_of_week],
-                '월': [single_date.month],
-                '일': [single_date.day],
-                '총 인구': [population],#534103
+                new_data = {
+                'YEAR': [single_date.year],
+                'MONTH': [single_date.month],
+                'DAY': [single_date.day],
+                'DAY_OF': [single_date.day_of_week],
+                'HOLIDAY': [holiday],
             # ... 기타 필요한 변수들
              }
+                year = single_date.year
+                if year >= 2023:
+                    year = 2023
+                if year <= 2021:
+                    year = 2021
+                gu_df = df2[(df2['YEAR'] == year) & (df2['WORK_GU'] == terminal_name)].iloc[0]
+                for column in gu_columns:
+                    new_data[column] = [gu_df[column]]
+                
                 new_data.update(encoded_columns)
                 new_data_df = pd.DataFrame(new_data)
                 prediction = loaded_model.predict(new_data_df)
-                total_prediction += prediction[0]
+                total_prediction += max(prediction[0], 0)
             current_time = datetime.now()
-            st.session_state.predictions.append(total_prediction)
-            st.session_state.labels.append(f"{model_name} / {terminal_name} / (time:{current_time.strftime('%H:%M:%S')})")
-        if len(st.session_state.predictions) > 12:
+            label = f"{model_name}_{terminal_name}_{start_date.strftime('%Y-%m-%d')}~{end_date.strftime('%Y-%m-%d')}_(time:{current_time.strftime('%H:%M:%S')})"
+            labels.append(label)
+            total_predictions.append(total_prediction)
+        
+        st.session_state.predictions.extend(total_predictions)
+        st.session_state.labels.extend(labels)
+
+        if len(st.session_state.predictions) > 11:
             st.session_state.predictions = st.session_state.predictions[-12:]
             st.session_state.labels = st.session_state.labels[-12:]
+
         st.write(f'예측된 물류량 합산: {sum(st.session_state.predictions):.2f}')
         plt.clf()
         plot_bar_chart(st.session_state.predictions, st.session_state.labels)
-    
+
     if st.button('그래프 초기화'):
         st.session_state.predictions.clear()
         st.session_state.labels.clear()
         st.experimental_rerun()
-all_terminals = ['강남', '강동', '강북', '강서', '관악', '광진', '구로', '금천', '노원', '도봉', '동대문', '동작', '마포', '서대문', '서초', '성동', '성북', '송파', '양천', '영등포', '용산', '은평', '종로', '중구', '중랑']
+    
+    """
+    현재 예측 모델을 만들기 위해 사용한 변수 columns는 총 x개이며, 그 리스트는 아래와 같습니다.
+
+    list=[]
+    """
+
+all_terminals = ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', 
+                     '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', 
+                     '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구']
+
+# 필요한 컬럼들을 리스트로 정의합니다.
+gu_columns = ['TOTAL_PEOPLE', 'RATE_UNDER 20s', 'RATE_20s-30s', 'RATE_40s-50s', 
+                 'RATE_60s-70s', 'RATE_OVER 80s', 'RATE_20M_Won', 'RATE_30M_Won', 'RATE_40M_Won', 'RATE_50M_Won', 'RATE_60M_Won', 'RATE_70M_Won', 
+                 'RATE_OVER_70M_Won', 'APT_PRICE_INDEX', 'APT_NUM', 'APT_RATE', 'NUM_INSU', 'INSU_MONEY', 'FOOD_TRASH', 'BIRTH_RATE', 'TOTAL_OIL', 
+                 'GASOLINE', 'KEROSENE', 'DIESEL', 'LPG', 'OTHER_OIL', 'TOTAL_GASUSE', 'GASUSE_HOME', 'GASUSE_COMMON', 'GASUSE_WORK', 'GASUSE_IND', 'GASUSE_HEAT', 
+                 'GASUSE_TRF', 'NUM_HYDCAR', 'TOTAL_ALONE', 'ALONE_65-79', 'ALONE_OVER_80', 'TOTAL_ALONE_BASIC', 'ALONE_BASIC_65-79', 'ALONE_BASIC_OVER_80', 
+                 'TOTAL_ALONE_LOW', 'ALONE_LOW_65-79', 'ALONE_LOW_OVER_80', 'TOTAL_ALONE_COMM', 'ALONE_COMM_65-79', 'ALONE_COMM_OVER_80', 'TOTAL_HOUSE', 'NUM_DANDOK', 
+                 'NUM_COMDAN', 'NUM_MULTI', 'NUM_WITHSALES', 'NUM_TOWNH', 'NUM_DASEDE', 'NUM_NOLIVE', 'PEOPEL_DENS', 'TOTAL_SD', 'SD_1MEM', 'SD_2MEM', 'SD_3MEM', 'SD_4MEM', 
+                 'SD_5MEM', 'SD_6MEM', 'SD_7MEM', 'SD_8MEM', 'SD_9MEM', 'SD_10MEM', 'RATE_VAC_1ST', 'RATE_VAC_2ND', 'RATE_VAC_3RD', 'RATE_VAC_4TH', 'RATE_VAC_VER2', 
+                 'TOTAL_AVG_AGE', 'MEN_AVG_AGE', 'WOMEN_AVG_AGE', 'TOTAL_LIB', 'TOTAL_REC', 'RESTAURANTS', 'CATERING', 'FOOD_PROCESS', 'FOOD_TRANS_SALES', 
+                 'HEALTH_FUNCTION_SALES', 'TOTAL_ELEC', 'RESIDENTIAL', 'GENERAL', 'EDUCATIONAL', 'INDUSTRIAL', 'AGRICULTURAL', 'STREETLIGHT', 'NIGHTUSE', 'MANUFACTURING', 
+                 'RETAIL', 'TOTAL_MED']
+
+df2 = pd.read_csv("./models/work_info.csv")
+
+
+
 if __name__ == "__main__":
     show_prediction_page(all_terminals)
 
