@@ -7,6 +7,12 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm, rc
 import numpy as np
 
+# 예측마다 막대색 통일
+# 텍스트 설명
+# 막대별로 이전 같은 기간과 비교 가능한 추가 막대
+# 막대색 알록달록
+# 막대 갯 수별 라벨 각도
+
 # 사용자 정의 폰트 경로
 font_path = './customFonts/NanumGothic-Regular.ttf'
 # 폰트 매니저에 폰트를 등록
