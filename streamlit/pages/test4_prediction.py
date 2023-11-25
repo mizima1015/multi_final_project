@@ -117,7 +117,7 @@ def show_prediction_page(all_terminals):
     else:
         city_name = None
 
-    if selected_types == '전체물류량':
+    if selected_types == '전체 물류량':
         encoded_columns = create_encoded_columns(terminal_name, all_terminals)
     elif selected_types == '수신':
         encoded_columns = create_rec_encoded_columns(city_name, all_city, terminal_name, all_terminals)
