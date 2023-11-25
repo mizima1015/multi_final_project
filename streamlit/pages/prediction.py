@@ -7,6 +7,11 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm, rc
 import numpy as np
 
+# 예측마다 막대색 통일
+# 텍스트 설명
+# 막대별로 이전 같은 기간과 비교 가능한 추가 막대
+# 막대색 알록달록 - https://coolors.co/palettes/trending
+
 # 사용자 정의 폰트 경로
 font_path = './customFonts/NanumGothic-Regular.ttf'
 # 폰트 매니저에 폰트를 등록
@@ -59,9 +64,10 @@ def plot_bar_chart(predictions, labels):
             yval = item.get_height()
             plt.text(item.get_x() + item.get_width() / 2, yval, round(yval, 1), va='bottom', ha='center')
     
+    rotation_angle = 0 if len(labels) <= 5 else 60
     plt.xlabel('품목')
     plt.ylabel('물류량')
-    plt.xticks(range(len(labels)),[label.split("_")[0] for label in labels],rotation=60)
+    plt.xticks(range(len(labels)),[label.split("_")[0] for label in labels],rotation=rotation_angle)
 
     # x축의 범위를 설정하여 뚱뚱한 막대가 나오지 않도록 조정합니다.
     plt.xlim(-0.5, len(labels)-0.5)
@@ -161,9 +167,9 @@ def show_prediction_page(all_terminals):
         st.experimental_rerun()
     
     """
-    현재 예측 모델을 만들기 위해 사용한 변수 columns는 총 x개이며, 그 리스트는 아래와 같습니다.
+    현재 예측 모델을 만들기 위해 사용한 변수 columns는 총 110개이며, 그 리스트는 아래와 같습니다.
 
-    list=[]
+    columns_list=['YEAR', 'MONTH', 'DAY', 'DAY_OF', 'HOLIDAY', 'TOTAL_PEOPLE', 'RATE_UNDER 20s', 'RATE_20s-30s', 'RATE_40s-50s', 'RATE_60s-70s', 'RATE_OVER 80s', 'RATE_20M_Won', 'RATE_30M_Won', 'RATE_40M_Won', 'RATE_50M_Won', 'RATE_60M_Won', 'RATE_70M_Won', 'RATE_OVER_70M_Won', 'APT_PRICE_INDEX', 'APT_NUM', 'APT_RATE', 'NUM_INSU', 'INSU_MONEY', 'FOOD_TRASH', 'BIRTH_RATE', 'TOTAL_OIL', 'GASOLINE', 'KEROSENE', 'DIESEL', 'LPG', 'OTHER_OIL', 'TOTAL_GASUSE', 'GASUSE_HOME', 'GASUSE_COMMON', 'GASUSE_WORK', 'GASUSE_IND', 'GASUSE_HEAT', 'GASUSE_TRF', 'NUM_HYDCAR', 'TOTAL_ALONE', 'ALONE_65-79', 'ALONE_OVER_80', 'TOTAL_ALONE_BASIC', 'ALONE_BASIC_65-79', 'ALONE_BASIC_OVER_80', 'TOTAL_ALONE_LOW', 'ALONE_LOW_65-79', 'ALONE_LOW_OVER_80', 'TOTAL_ALONE_COMM', 'ALONE_COMM_65-79', 'ALONE_COMM_OVER_80', 'TOTAL_HOUSE', 'NUM_DANDOK', 'NUM_COMDAN', 'NUM_MULTI', 'NUM_WITHSALES', 'NUM_TOWNH', 'NUM_DASEDE', 'NUM_NOLIVE', 'PEOPEL_DENS', 'TOTAL_SD', 'SD_1MEM', 'SD_2MEM', 'SD_3MEM', 'SD_4MEM', 'SD_5MEM', 'SD_6MEM', 'SD_7MEM', 'SD_8MEM', 'SD_9MEM', 'SD_10MEM', 'RATE_VAC_1ST', 'RATE_VAC_2ND', 'RATE_VAC_3RD', 'RATE_VAC_4TH', 'RATE_VAC_VER2', 'TOTAL_AVG_AGE', 'MEN_AVG_AGE', 'WOMEN_AVG_AGE', 'TOTAL_LIB', 'TOTAL_REC', 'RESTAURANTS', 'CATERING', 'FOOD_PROCESS', 'FOOD_TRANS_SALES', 'HEALTH_FUNCTION_SALES', 'TOTAL_ELEC', 'RESIDENTIAL', 'GENERAL', 'EDUCATIONAL', 'INDUSTRIAL', 'AGRICULTURAL', 'STREETLIGHT', 'NIGHTUSE', 'MANUFACTURING', 'RETAIL', 'TOTAL_MED', 'work_gu']
     """
 
 all_terminals = ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', 

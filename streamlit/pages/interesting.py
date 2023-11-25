@@ -49,7 +49,8 @@ def show_interesting():
     
 
     <div class="footer">
-        <p> 여기에 원하는 푸터 정보를 넣으면 된다. @ 2023 회사명</p>
+        <p> 추가로 더 알아봤으면 하는 변수가 있다면 아래 메일로 문의주시기 바랍니다. </p>   
+        <p> mizimaaz@gmail.com  /  2023 DeliverEase </p>
     </div>
 
     """

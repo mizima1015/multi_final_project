@@ -25,7 +25,6 @@ def main():
     # st.title("HTML CSS 마크다운 적용")
     html_css = """
     <style>
-
     th,td{
         border-bottom: 1px solid #ddd;
     }
@@ -37,6 +36,13 @@ def main():
         font-weight: bold;
         color: rgb(255, 0, 0);
         font-family: 'Arial', sans-serif;
+    }
+    @font-face {
+        font-family: 'NanumGothic';
+        src: url('./customFonts/NanumGothic-Bold.ttf') format('truetype');
+    }
+    .font1 {
+        font-family: 'NanumGothic';
     }
     .multicampus{
         font-size: 24px;
@@ -59,9 +65,10 @@ def main():
     padding: 1px;
     font-size: 12px;
     }
+    
     </style>
 
-    안녕하세요? 저희는 <span class="highlight">DeliverEase</span> 팀입니다. \n
+    <span class="font1"> 안녕하세요? </span>저희는 <span class="highlight">DeliverEase</span> 팀입니다. \n
     저희는 국비지원 취업교육<span class="multicampus"> Multicampus 데이터분석가 & 엔지니어</span> 28회차를 수강한 교육생입니다.\n
     저희 프로젝트는 코로나 이후 비대면과 배달 등이 트랜드가 되면서 함께 늘어난 택배 물류량으로 인해 
     많은 택배 물류 운송업체에서 업무과중 문제가 심각하다고 생각되어 기획하게 되었습니다.\n
@@ -70,7 +77,9 @@ def main():
     prediction 탭으로 이동해 원하는 기간의 물류량을 예측해 볼 수 있습니다.\n
     저희 프로젝트로 인해 물류의 재고관리 그리고 물류회사분들의 업무과중 방지에 도움이 되었으면 하는 바람입니다.
 
-
+    <body>
+    <span class="multicampus"> test block 입니다.</span>
+    </body>
     <table>
         <thead>
             <tr>
@@ -94,7 +103,7 @@ def main():
     </table>
 
     <div class="footer">
-        <p> 여기에 원하는 푸터 정보를 넣으면 된다. @ 2023 회사명</p>
+        <p> mizimaaz@gmail.com  /  2023 DeliverEase </p>
     </div>
 
 """
