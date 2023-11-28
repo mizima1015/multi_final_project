@@ -2,8 +2,10 @@
 import streamlit as st
 import pandas as  pd
 
+
+st.set_page_config(layout="wide")
+
 def show_interesting():
-    st.set_page_config(layout="wide")
     image_path = "./images/interesting.png"
     st.image(image_path, caption='', use_column_width=True)
     html_css = """
@@ -36,7 +38,7 @@ def show_interesting():
     left: 0px;
     right:30px;
     width: 100%;
-    background: linear-gradient(to right, rgb(204, 193, 80), rgb(247, 245, 225));
+    background: linear-gradient(to right, rgb(225, 236, 247), rgb(240, 245, 250));
     color: #888;
     text-align: center;
     padding: 1px;
@@ -56,5 +58,17 @@ def show_interesting():
     """
     st.markdown(html_css, unsafe_allow_html=True)
 
+def add_bg_from_url():
+    st.markdown(
+         f"""
+         <style>
+         </style>
+         """,
+         unsafe_allow_html=True
+     )
+
+add_bg_from_url() 
+
 if __name__ == "__main__":
+    add_bg_from_url()
     show_interesting()

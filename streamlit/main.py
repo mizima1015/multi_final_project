@@ -59,7 +59,7 @@ def main():
     left: 0px;
     right:30px;
     width: 100%;
-    background: linear-gradient(to right, rgb(204, 193, 80), rgb(247, 245, 225));
+    background: linear-gradient(to right, rgb(225, 236, 247), rgb(240, 245, 250));
     color: #888;
     text-align: center;
     padding: 1px;
