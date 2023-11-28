@@ -12,10 +12,9 @@ from pages import dashboard, prediction, team, test3_prediction
 # sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8501
 # sudo apt-get install iptables-persistent
 # ------ 포트포워딩 -----
-
+st.set_page_config(layout="wide")
 # 메인 페이지를 보여주는 함수입니다.
-def main():
-    st.set_page_config(layout="wide")
+def main():  
     # st.title("메인화면")
     image_path = "./images/main3.png"
     st.image(image_path, caption='', use_column_width=True)
