@@ -18,6 +18,8 @@ def main():
     # st.title("메인화면")
     image_path = "./images/main3.png"
     st.image(image_path, caption='', use_column_width=True)
+    st.sidebar.markdown("[Tableu(서울시)](https://public.tableau.com/app/profile/.13586515/viz/_1_17004659183630/1?publish=yes)")
+    st.sidebar.markdown("[Tableu(자치구)](https://public.tableau.com/app/profile/.13586515/viz/_2_17006268549610/22?publish=yes)")
     
     # 메인 페이지의 내용을 여기에 추가합니다.
 
@@ -75,31 +77,6 @@ def main():
     사용자는 사이드바의 대시보드 탭으로 이동해 태블로 대시보드 링크를 얻어 대시보드를 사용할 수 있으며,
     prediction 탭으로 이동해 원하는 기간의 물류량을 예측해 볼 수 있습니다.\n
     저희 프로젝트로 인해 물류의 재고관리 그리고 물류회사분들의 업무과중 방지에 도움이 되었으면 하는 바람입니다.
-
-    <body>
-    <span class="multicampus"> test block 입니다.</span>
-    </body>
-    <table>
-        <thead>
-            <tr>
-                <th>이름</th>
-                <th>나이</th>
-                <th>직업</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>LEE</td>
-                <td>28</td>
-                <td>데이터 분석가</td>
-            </tr>
-            <tr>
-                <td>somebody</td>
-                <td>399</td>
-                <td>프로덕트 오너</td>
-            </tr>
-        </tbody>
-    </table>
 
     <div class="footer">
         <p> mizimaaz@gmail.com  /  2023 DeliverEase </p>

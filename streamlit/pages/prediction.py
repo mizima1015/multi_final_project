@@ -58,9 +58,9 @@ def hex_to_rgba(hex_color, alpha):
 # 막대 그래프를 그리는 함수
 def plot_bar_chart(predictions, labels, city_name=None):
     COLORS = [
-        "#FF5733", "#C70039", "#900C3F", "#581845",
-        "#FFC300", "#FF5733", "#C70039", "#900C3F",
-        "#581845", "#FFC300", "#DAF7A6"
+        "#FF5733", "#C70039", "#fca649", "#2a8ff5",
+        "#56ff38", "#FF5733", "#fa7fea", "#f0fc90",
+        "#9ab2f5", "#FFC300", "#DAF7A6"
     ]
 
     # 예측 세션별로 그룹화하여 색상 채도를 결정하기 위한 사전 준비
@@ -126,6 +126,20 @@ def plot_bar_chart(predictions, labels, city_name=None):
 # 예측 페이지를 보여주는 함수
 def show_prediction_page(all_terminals, gu_columns, all_city):
     st.title("물류량 예측")
+    with st.expander("페이지 설명"):
+        st.write("""
+                이 곳에선 구별 터미널이 처리하는 전체 총 물류량, 지방으로 내보내는 발송 물류량, 지방에서 들어오는 수신물류량을 구분해 예측을 해보실 수 있습니다. \n
+                그래프는 33개까지 누적해서 그릴 수 있으며, 
+                 예측 버튼을 누를 때마다 다른 계열의 색으로 그래프가 그려집니다.\n
+                그래프를 처음부터 그리고 싶다면 아래의 그래프 초기화 버튼을 눌러주시기 바랍니다.
+
+                품목 중 전체 옵션을 선택하시면 11개의 모든 품목 그래프를 한 번에 그리실 수 있습니다.
+            """)
+        
+    st.sidebar.markdown("[Tableu(서울시)](https://public.tableau.com/app/profile/.13586515/viz/_1_17004659183630/1?publish=yes)")
+    st.sidebar.markdown("[Tableu(자치구)](https://public.tableau.com/app/profile/.13586515/viz/_2_17006268549610/22?publish=yes)")
+    
+
     html_css ="""
     <style>
     th,td{
@@ -136,11 +150,7 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
         font-weight: bold;
         font-family: 'Arial', sans-serif;
     </style>
-    이 곳에선 물류량 예측을 해보실 수 있습니다. \n
-    그래프는 <span class="highlight">33개까지 누적</span>해서 그릴 수 있으며, 
-    그래프를 처음부터 그리고 싶다면 아래 그래프 초기화버튼을 눌러주시기 바랍니다.
 
-    품목 중 전체 옵션을 선택하시면 11개의 모든 품목 그래프를 한 번에 그리실 수 있습니다.
     """
     st.markdown(html_css, unsafe_allow_html=True)
     if 'predictions' not in st.session_state:
@@ -319,13 +329,66 @@ def add_bg_from_url():
     st.markdown(
          f"""
          <style>
+
          </style>
 
+            <div>
+            <예측 결과>
+
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>총물류량</th>
+                        <th>최댓값</th>
+                        <th>최댓값(백분위)</th>
+                        <th>최솟값</th>
+                        <th>최솟값(백분위)</th>
+                        <th>평균값</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{total}</td>
+                        <td>{max_val}</td>
+                        <td>{max_val}</td>
+                        <td>{min_val}</td>
+                        <td>{min_val}</td>
+                        <td>{avg_prediction}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div>
+            <같은 기간 이전과 비교>
+
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>총물류량</th>
+                        <th>최댓값</th>
+                        <th>최댓값(백분위)</th>
+                        <th>최솟값</th>
+                        <th>최솟값(백분위)</th>
+                        <th>평균값</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{total}</td>
+                        <td>{max_val}</td>
+                        <td>{max_val}</td>
+                        <td>{min_val}</td>
+                        <td>{min_val}</td>
+                        <td>{avg_prediction}</td>
+                    </tr>
+                </tbody>
+            </table>
             <div>
             <예측 결과 분석>
 
             </div>
-            <table>
+            <table>    
                 <thead>
                     <tr>
                         <th>총물류량</th>
