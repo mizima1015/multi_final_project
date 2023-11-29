@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 import streamlit as st
-from pages import dashboard, prediction, team, test3_prediction
+from pages import interesting, prediction, team
  
 # nohup streamlit run main.py > streamlit.log 2>&1 &
 # ----- 서버 streamlit 실행-----
@@ -12,18 +12,17 @@ from pages import dashboard, prediction, team, test3_prediction
 # sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8501
 # sudo apt-get install iptables-persistent
 # ------ 포트포워딩 -----
-st.set_page_config(layout="wide")
-# 메인 페이지를 보여주는 함수입니다.
+
+
+
 def main():  
     # st.title("메인화면")
+    st.set_page_config(layout="wide")
     image_path = "./images/main3.png"
     st.image(image_path, caption='', use_column_width=True)
-    st.sidebar.markdown("[Tableu(서울시)](https://public.tableau.com/app/profile/.13586515/viz/_1_17004659183630/1?publish=yes)")
-    st.sidebar.markdown("[Tableu(자치구)](https://public.tableau.com/app/profile/.13586515/viz/_2_17006268549610/22?publish=yes)")
+    st.sidebar.markdown("[Tableu(서울시)](https://public.tableau.com/app/profile/.13586515/viz/df3_1_re/12?publish=yes)")
+    st.sidebar.markdown("[Tableu(자치구)](https://public.tableau.com/app/profile/.13586515/viz/df3_2_re/24?publish=yes)")
     
-    # 메인 페이지의 내용을 여기에 추가합니다.
-
-    # st.title("HTML CSS 마크다운 적용")
     html_css = """
     <style>
     th,td{
@@ -87,7 +86,6 @@ def main():
 
     st.markdown(html_css, unsafe_allow_html=True)
 
-# Python 스크립트가 실행될 때 main() 함수를 호출합니다.
 if __name__ == "__main__":
     main()
 

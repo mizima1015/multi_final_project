@@ -7,11 +7,6 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm, rc
 import numpy as np
 
-# 예측마다 막대색 통일
-# 텍스트 설명
-# 막대별로 이전 같은 기간과 비교 가능한 추가 막대 x 아래쪽에 증감량으로 표현하는게 좋을듯?
-# 막대색 알록달록 - https://coolors.co/palettes/trending
-
 # 사용자 정의 폰트 경로
 font_path = './customFonts/NanumGothic-Regular.ttf'
 # 폰트 매니저에 폰트를 등록
@@ -136,8 +131,8 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
                 품목 중 전체 옵션을 선택하시면 11개의 모든 품목 그래프를 한 번에 그리실 수 있습니다.
             """)
         
-    st.sidebar.markdown("[Tableu(서울시)](https://public.tableau.com/app/profile/.13586515/viz/_1_17004659183630/1?publish=yes)")
-    st.sidebar.markdown("[Tableu(자치구)](https://public.tableau.com/app/profile/.13586515/viz/_2_17006268549610/22?publish=yes)")
+    st.sidebar.markdown("[Tableu(서울시)](https://public.tableau.com/app/profile/.13586515/viz/df3_1_re/12?publish=yes)")
+    st.sidebar.markdown("[Tableu(자치구)](https://public.tableau.com/app/profile/.13586515/viz/df3_2_re/24?publish=yes)")
     
 
     html_css ="""
@@ -263,7 +258,6 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
     
     html_css = """
     <style>
-
     th,td{
         border-bottom: 1px solid #ddd;
     }
@@ -320,16 +314,28 @@ df2 = pd.read_csv("./models/work_info.csv")
 
 
 def add_bg_from_url():
-    total = f"{sum(st.session_state.predictions):.1f}" if st.session_state.predictions else '데이터 없음'
-    max_val = f"{max(st.session_state.predictions):.1f}" if st.session_state.predictions else '데이터 없음'
-    min_val = f"{min(st.session_state.predictions):.1f}" if st.session_state.predictions else '데이터 없음'
-    avg_prediction = f"{np.mean(st.session_state.predictions):.1f}" if st.session_state.predictions else '데이터 없음'
+    total = round(sum(st.session_state.predictions), 1) if st.session_state.predictions else '데이터 없음'
+    max_val = round(max(st.session_state.predictions), 1) if st.session_state.predictions else '데이터 없음'
+    min_val = round(min(st.session_state.predictions), 1) if st.session_state.predictions else '데이터 없음'
+    avg_prediction = round(np.mean(st.session_state.predictions), 1) if st.session_state.predictions else '데이터 없음'
 
+    # 'total'과 'max_val'을 float 타입으로 변환합니다.
+    total_float = float(total) if st.session_state.predictions else 0
+    max_val_float = float(max_val) if st.session_state.predictions else 0
+    min_val_float = float(min_val) if st.session_state.predictions else 0
+    avg_val_float = float(avg_prediction) if st.session_state.predictions else 0
+    
+
+    # 'total'이 0보다 클 경우에만 계산을 수행합니다.
+    to_max = round((max_val_float / total_float) * 100, 1) if total_float > 0 else '데이터 없음'
+    to_min = round((min_val_float / total_float) * 100, 1) if total_float > 0 else '데이터 없음'
+    av_max = round(((max_val_float/avg_val_float)*100)-100,1) if total_float > 0 else '데이터 없음'
+    av_min = round(((1-(min_val_float/avg_val_float))*100),1) if total_float > 0 else '데이터 없음'
 
     st.markdown(
          f"""
          <style>
-
+            
          </style>
 
             <div>
@@ -339,28 +345,31 @@ def add_bg_from_url():
             <table>
                 <thead>
                     <tr>
-                        <th>총물류량</th>
+                        <th>총물류량(건)</th>
+                        <th>평균값</th>                        
                         <th>최댓값</th>
-                        <th>최댓값(백분위)</th>
+                        <th>백분위(%)</th>
+                        <th>평균대비증감(%)</th>
                         <th>최솟값</th>
-                        <th>최솟값(백분위)</th>
-                        <th>평균값</th>
+                        <th>백분위(%)</th>
+                        <th>평균대비증감(%)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>{total}</td>
-                        <td>{max_val}</td>
-                        <td>{max_val}</td>
-                        <td>{min_val}</td>
-                        <td>{min_val}</td>
                         <td>{avg_prediction}</td>
+                        <td>{max_val}</td>
+                        <td>{to_max}</td>
+                        <td>+ {av_max}</td>
+                        <td>{min_val}</td>
+                        <td>{to_min}</td>
+                        <td>- {av_min}</td>
                     </tr>
                 </tbody>
             </table>
-            <div>
+            <div>        
             <같은 기간 이전과 비교>
-
             </div>
             <table>
                 <thead>
