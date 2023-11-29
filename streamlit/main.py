@@ -13,11 +13,10 @@ from pages import interesting, prediction, team
 # sudo apt-get install iptables-persistent
 # ------ 포트포워딩 -----
 
-
+st.set_page_config(layout="wide")
 
 def main():  
     # st.title("메인화면")
-    st.set_page_config(layout="wide")
     image_path = "./images/main3.png"
     st.image(image_path, caption='', use_column_width=True)
     st.sidebar.markdown("[Tableu(서울시)](https://public.tableau.com/app/profile/.13586515/viz/df3_1_re/12?publish=yes)")
