@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm, rc
 import numpy as np
 
+# 예측마다 legend 하나만 나오게 하기
+# 전체 증감율? 세션 저장할 때 마다 있는 값을 받아와서 그때마다 증감율을 보여주면 좋으려나?
+
 # 사용자 정의 폰트 경로
 font_path = './customFonts/NanumGothic-Regular.ttf'
 # 폰트 매니저에 폰트를 등록
@@ -111,6 +114,7 @@ def plot_bar_chart(predictions, labels, city_name=None):
     plt.tight_layout()   
     # 범례를 추가합니다. 'best' 위치에 표시되도록 설정합니다.
     # 플로팅하기 전에 city_name의 존재 여부에 따라 legend_labels를 조정합니다.
+    
     legend_labels = [f"{label.split('_')[2]} / {label.split('_')[3]} / {label.split('_')[4]}" for label in labels]
 
     plt.legend(legend_labels, loc='lower center', bbox_to_anchor=(0.5, 1), ncol=3)
@@ -152,6 +156,8 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
         st.session_state['predictions'] = []
     if 'labels' not in st.session_state:
         st.session_state['labels'] = []
+    if 'cumulative_totals' not in st.session_state:
+        st.session_state['cumulative_totals'] = []
 
     type_options = ['전체 물류량', '수신', '발송']
     selected_types = st.selectbox('어떤 물류를 확인해 볼까요?', type_options)
@@ -160,8 +166,8 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
     start_date = st.date_input('시작 날짜를 선택하세요', datetime.today())
     end_date = st.date_input('종료 날짜를 선택하세요', datetime.today())
     date_range = pd.date_range(start_date, end_date)
-    selected_holidays = st.multiselect('공휴일로 지정할 날짜를 선택하세요:', date_range)
-    holiday_flags = {date: (1 if date in selected_holidays else 0) for date in date_range}
+    selected_holidays = st.multiselect('공휴일로 지정할 날짜를 선택하세요. (없다면 넘어가기)', date_range)
+
     if start_date > end_date:
         st.error('시작 날짜는 종료 날짜보다 클 수 없습니다.')
         return
@@ -240,12 +246,16 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
             
             total_predictions.append(total_prediction)
         
+        st.session_state.cumulative_totals.append(sum(total_predictions))
         st.session_state.predictions.extend(total_predictions)
         st.session_state.labels.extend(labels)
 
         if len(st.session_state.predictions) > 33:
             st.session_state.predictions = st.session_state.predictions[-33:]
             st.session_state.labels = st.session_state.labels[-33:]
+            
+        if len(st.session_state.cumulative_totals) > 12:
+            st.session_state.cumulative_totals = st.session_state.cumulative_totals[-12:]
 
         st.write(f'예측된 물류량 합산: {sum(st.session_state.predictions):.2f}')
         plt.clf()
@@ -254,6 +264,7 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
     if st.button('그래프 초기화'):
         st.session_state.predictions.clear()
         st.session_state.labels.clear()
+        st.session_state.cumulative_totals.clear()
         st.experimental_rerun()
         plot_bar_chart(st.session_state.predictions, st.session_state.labels, selected_types, city_name)
     
@@ -315,10 +326,10 @@ df2 = pd.read_csv("./models/work_info.csv")
 
 
 def add_bg_from_url():
-    total = round(sum(st.session_state.predictions), 1) if st.session_state.predictions else '데이터 없음'
-    max_val = round(max(st.session_state.predictions), 1) if st.session_state.predictions else '데이터 없음'
-    min_val = round(min(st.session_state.predictions), 1) if st.session_state.predictions else '데이터 없음'
-    avg_prediction = round(np.mean(st.session_state.predictions), 1) if st.session_state.predictions else '데이터 없음'
+    total = round(sum(st.session_state.predictions), 1) if st.session_state.predictions else '-'
+    max_val = round(max(st.session_state.predictions), 1) if st.session_state.predictions else '-'
+    min_val = round(min(st.session_state.predictions), 1) if st.session_state.predictions else '-'
+    avg_prediction = round(np.mean(st.session_state.predictions), 1) if st.session_state.predictions else '-'
 
     # 'total'과 'max_val'을 float 타입으로 변환합니다.
     total_float = float(total) if st.session_state.predictions else 0
@@ -328,10 +339,40 @@ def add_bg_from_url():
     
 
     # 'total'이 0보다 클 경우에만 계산을 수행합니다.
-    to_max = round((max_val_float / total_float) * 100, 1) if total_float > 0 else '데이터 없음'
-    to_min = round((min_val_float / total_float) * 100, 1) if total_float > 0 else '데이터 없음'
-    av_max = round(((max_val_float/avg_val_float)*100)-100,1) if total_float > 0 else '데이터 없음'
-    av_min = round(((1-(min_val_float/avg_val_float))*100),1) if total_float > 0 else '데이터 없음'
+    to_max = round((max_val_float / total_float) * 100, 1) if total_float > 0 else '-'
+    to_min = round((min_val_float / total_float) * 100, 1) if total_float > 0 else '-'
+    av_max = round(((max_val_float/avg_val_float)*100)-100,1) if total_float > 0 else '-'
+    av_min = round(((1-(min_val_float/avg_val_float))*100),1) if total_float > 0 else '-'
+
+    cumulative_totals = st.session_state.cumulative_totals
+    # 테이블 셀에 값을 채우는데 사용할 최대 인덱스
+    max_index = len(cumulative_totals) - 1
+    # 첫 번째 행과 두 번째 행의 HTML 초기화
+    first_row_html = ""
+    second_row_html = ""
+
+    # 증감율을 계산하기 위한 이전 값 초기화
+    previous_value = None
+
+    # 첫 6차 예측까지의 값을 첫 번째 행에 추가
+    for i in range(6):
+        current_value = round(float(cumulative_totals[i]), 1) if i <= max_index else "-"
+        change_percent = ""
+        if previous_value is not None and current_value != "-":
+            change_percent = f"({round((current_value - previous_value) / previous_value * 100, 1):+}%)"
+        value_with_change = f"{current_value}{change_percent}"
+        first_row_html += f"<td>{value_with_change}</td>"
+        previous_value = current_value if current_value != "-" else previous_value
+
+    # 7차부터 11차 예측까지의 값을 두 번째 행에 추가
+    for i in range(6, 12):
+        current_value = round(float(cumulative_totals[i]), 1) if i <= max_index and i < len(cumulative_totals) else "-"
+        change_percent = ""
+        if previous_value is not None and current_value != "-":
+            change_percent = f"({round((current_value - previous_value) / previous_value * 100, 1):+}%)"
+        value_with_change = f"{current_value}{change_percent}"
+        second_row_html += f"<td>{value_with_change}</td>"
+        previous_value = current_value if current_value != "-" else previous_value
 
     st.markdown(
          f"""
@@ -370,27 +411,33 @@ def add_bg_from_url():
                 </tbody>
             </table>
             <div>        
-            <전체 증감율 확인>
+            <예측 회차별 증감>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th>총물류량</th>
-                        <th>최댓값</th>
-                        <th>최댓값(백분위)</th>
-                        <th>최솟값</th>
-                        <th>최솟값(백분위)</th>
-                        <th>평균값</th>
+                        <th>1차 예측</th>
+                        <th>2차 예측</th>
+                        <th>3차 예측</th>
+                        <th>4차 예측</th>
+                        <th>5차 예측</th>
+                        <th>6차 예측</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>{total}</td>
-                        <td>{max_val}</td>
-                        <td>{max_val}</td>
-                        <td>{min_val}</td>
-                        <td>{min_val}</td>
-                        <td>{avg_prediction}</td>
+                        {first_row_html}
+                    </tr>
+                    <tr>
+                        <th>7차 예측</th>
+                        <th>8차 예측</th>
+                        <th>9차 예측</th>
+                        <th>10차 예측</th>
+                        <th>11차 예측</th>
+                        <th>12차 예측</th>
+                    </tr>
+                    <tr>
+                        {second_row_html}
                     </tr>
                 </tbody>
             </table>
