@@ -94,18 +94,7 @@ def show_interesting():
 
     """
     st.markdown(html_css, unsafe_allow_html=True)
-
-def add_bg_from_url():
-    st.markdown(
-         f"""
-         <style>
-         </style>
-         """,
-         unsafe_allow_html=True
-     )
-
-add_bg_from_url() 
-
+ 
 if __name__ == "__main__":
-    add_bg_from_url()
+
     show_interesting()

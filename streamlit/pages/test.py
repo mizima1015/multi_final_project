@@ -380,7 +380,7 @@ def add_bg_from_url():
          </style>
 
             <div>
-            <예측 결과>
+            <그래프 분석>
 
             </div>
             <table>
@@ -409,7 +409,8 @@ def add_bg_from_url():
                     </tr>
                 </tbody>
             </table>
-            <div>        
+            <div>
+            <p></p>        
             <예측 회차별 증감>
             </div>
             <table>
@@ -441,31 +442,10 @@ def add_bg_from_url():
                 </tbody>
             </table>
             <div>
-            <예측 결과 분석>
-
+            <p></p>
+            <p><예측 결과 분석></p>
+            <p> 000 품목의 물류량이 다른 품목에 비해 많고, 총 물류량은 올해 같은기간 총물류량 평균에 </p>
             </div>
-            <table>    
-                <thead>
-                    <tr>
-                        <th>총물류량</th>
-                        <th>최댓값</th>
-                        <th>최댓값(백분위)</th>
-                        <th>최솟값</th>
-                        <th>최솟값(백분위)</th>
-                        <th>평균값</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{total}</td>
-                        <td>{max_val}</td>
-                        <td>{max_val}</td>
-                        <td>{min_val}</td>
-                        <td>{min_val}</td>
-                        <td>{avg_prediction}</td>
-                    </tr>
-                </tbody>
-            </table>
 
             <div class="footer">
             <p> 추가로 더 알아봤으면 하는 변수가 있다면 아래 메일로 문의주시기 바랍니다. </p>   
