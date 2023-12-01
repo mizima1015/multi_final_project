@@ -19,7 +19,7 @@ rc('font', family=font_prop.get_name())
 # 한글 마이너스 기호 문제 해결을 위한 설정
 rc('axes', unicode_minus=False)
 
-st.set_page_config(layout="wide")
+
 
 # 모델을 불러오는 함수
 def load_model(model_name, model_type):

@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as  pd
 
 
-st.set_page_config(layout="wide")
+
 
 def show_interesting():
     image_path = "./images/interesting.png"
