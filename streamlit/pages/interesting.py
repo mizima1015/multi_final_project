@@ -11,6 +11,12 @@ def show_interesting():
     st.sidebar.markdown("[Tableu(서울시)](https://public.tableau.com/app/profile/.13586515/viz/df3_1_re/12?publish=yes)")
     st.sidebar.markdown("[Tableu(자치구)](https://public.tableau.com/app/profile/.13586515/viz/df3_2_re/24?publish=yes)")
     
+    with st.expander("페이지 설명"):
+        st.write("""
+                 이 페이지에는 수치화가 어려운, 한 번쯤 생각해봤을 법한 변수들을 생각나는데로 확인해보고 그래프를 그려봤습니다. \n
+                 카테고리를 선택하면 해당 카테고리에 속하는 여러 변수들을 확인할 수 있습니다.
+            """)
+    
     categories = {
         '게임 출시': ['./images/zelda.png'],
         '명절': ['./images/2021_설.png','./images/2022_설.png', './images/2023_설.png', './images/2021_추석.png','./images/2022_추석.png'],
