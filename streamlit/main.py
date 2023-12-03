@@ -13,6 +13,7 @@ from pages import interesting, prediction, team
 # sudo apt-get install iptables-persistent
 # ------ 포트포워딩 -----
 
+# 화면 크기조절 제거 고려
 st.set_page_config(layout="wide")
 
 def main():  
