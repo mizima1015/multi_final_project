@@ -6,6 +6,7 @@ import joblib
 import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm, rc
 import numpy as np
+from datetime import timedelta
 
 
 # 사용자 정의 폰트 경로
@@ -195,11 +196,14 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
             loaded_model = models[model_name]
             for single_date in pd.date_range(start_date, end_date):
                 is_holiday = single_date in selected_holidays or single_date.day_of_week == 6
+                is_weekend = single_date.weekday() >= 5
+                day_after_holiday = (single_date - timedelta(days=1)) in selected_holidays
+                day_of_week = 1 if day_after_holiday and not is_weekend else single_date.weekday() + 1
                 new_data = {
                 'YEAR': [single_date.year],
                 'MONTH': [single_date.month],
                 'DAY': [single_date.day],
-                'DAY_OF': [7 if is_holiday else single_date.day_of_week+1],
+                'DAY_OF': [7 if is_holiday else day_of_week],
                 'HOLIDAY': [1 if is_holiday else 0],
              }
                 year = single_date.year
