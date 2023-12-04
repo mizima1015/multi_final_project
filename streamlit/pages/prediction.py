@@ -7,16 +7,12 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm, rc
 import numpy as np
 
-# 예측마다 legend 하나만 나오게 하기
-# 전체 증감율? 세션 저장할 때 마다 있는 값을 받아와서 그때마다 증감율을 보여주면 좋으려나?
 
 # 사용자 정의 폰트 경로
 font_path = './customFonts/NanumGothic-Regular.ttf'
-# 폰트 매니저에 폰트를 등록
 font_prop = fm.FontProperties(fname=font_path)
 fm.fontManager.addfont(font_path)
 rc('font', family=font_prop.get_name())
-# 한글 마이너스 기호 문제 해결을 위한 설정
 rc('axes', unicode_minus=False)
 
 
@@ -34,7 +30,6 @@ def load_model(model_name, model_type):
 
 # 원-핫 인코딩된 터미널 이름 컬럼을 생성하는 함수
 def create_encoded_columns(terminal_name, all_terminals):
-    # 모든 가능한 구 이름을 나열합니다.
     encoded_data = {f'WORK_GU_{terminal}': 1 if terminal == terminal_name else 0 for terminal in all_terminals}
     return encoded_data
 
@@ -49,7 +44,7 @@ def create_send_encoded_columns(city_name, all_city, terminal_name, all_terminal
     return {**encoded_terminal, **encoded_city}
 
 def hex_to_rgba(hex_color, alpha):
-    hex_color = hex_color.strip('#')  # '#' 제거
+    hex_color = hex_color.strip('#')
     r, g, b = int(hex_color[:2], 16), int(hex_color[2:4], 16), int(hex_color[4:], 16)
     return (r/255, g/255, b/255, alpha)
 
@@ -61,17 +56,13 @@ def plot_bar_chart(predictions, labels, city_name=None):
         "#9ab2f5", "#FFC300", "#DAF7A6"
     ]
 
-    # 예측 세션별로 그룹화하여 색상 채도를 결정하기 위한 사전 준비
     session_groups = {}
     for label in labels:
-        # 'session_id'는 레이블에서 예측 세션을 식별할 수 있는 부분입니다.
-        # 예를 들어, '2023-11-29-09:30:00'과 같은 시간을 기준으로 그룹화할 수 있습니다.
         session_id = label.split('_')[-2]
         if session_id not in session_groups:
             session_groups[session_id] = []
         session_groups[session_id].append(label)
     
-    # 색상 변화를 위한 설정
     plt.figure(figsize=(10, 7))
     if len(predictions) == 1:
         bar_width = 0.2
@@ -80,16 +71,17 @@ def plot_bar_chart(predictions, labels, city_name=None):
     else :
         bar_width =0.6
 
+    # 색상 변화를 위한 설정
     for session_id, group_labels in session_groups.items():
-        base_color = COLORS[int(session_id) % len(COLORS)]  # 기본 색상
-        num_bars = len(group_labels)  # 한 그룹 내 막대의 수
-        color_alpha_step = 1 / (num_bars + 1)  # 채도 감소 단계
+        base_color = COLORS[int(session_id) % len(COLORS)]
+        num_bars = len(group_labels)
+        color_alpha_step = 1 / (num_bars + 1)
 
         for i, label in enumerate(group_labels):
-            prediction_index = labels.index(label)  # 예측값 인덱스
+            prediction_index = labels.index(label)
             prediction = predictions[prediction_index]
-            alpha = 1 - (i * color_alpha_step)  # 알파 값 계산
-            rgba_color = hex_to_rgba(base_color, alpha)  # RGBA 색상으로 변환
+            alpha = 1 - (i * color_alpha_step)
+            rgba_color = hex_to_rgba(base_color, alpha)
             plt.bar(prediction_index, prediction, color=rgba_color, width=bar_width)
 
             # 막대 그래프 위에 값을 표시합니다.
@@ -107,15 +99,9 @@ def plot_bar_chart(predictions, labels, city_name=None):
     plt.xlabel('품목')
     plt.ylabel('물류량')
     plt.xticks(range(len(labels)),[f"{label.split('_')[1]}({label.split('_')[0]})" for label in labels],rotation=rotation_angle)
-
-    # x축의 범위를 설정하여 뚱뚱한 막대가 나오지 않도록 조정합니다.
-    plt.xlim(-0.5, len(labels)-0.5)
-    
+    plt.xlim(-0.5, len(labels)-0.5)    
     plt.tight_layout()   
-    # 범례를 추가합니다. 'best' 위치에 표시되도록 설정합니다.
-    # 플로팅하기 전에 city_name의 존재 여부에 따라 legend_labels를 조정합니다.
     legend_labels = [f"{label.split('_')[2]} / {label.split('_')[3]} / {label.split('_')[4]}" for label in labels]
-
     plt.legend(legend_labels, loc='lower center', bbox_to_anchor=(0.5, 1), ncol=3)
     st.pyplot(plt)
 
@@ -137,7 +123,6 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
     st.sidebar.markdown("[Tableu(서울시)](https://public.tableau.com/app/profile/.13586515/viz/df3_1_re/12?publish=yes)")
     st.sidebar.markdown("[Tableu(자치구)](https://public.tableau.com/app/profile/.13586515/viz/df3_2_re/24?publish=yes)")
     
-
     html_css ="""
     <style>
     th,td{
@@ -186,8 +171,8 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
 
     if st.button('예측'):
         if 'color_num' not in st.session_state:
-            st.session_state['color_num'] = 0  # 처음 실행 시 초기화
-        st.session_state['color_num'] += 1  # 예측마다 색상 번호 증가
+            st.session_state['color_num'] = 0
+        st.session_state['color_num'] += 1
 
         if '전체' in selected_models and len(selected_models) > 1:
             st.error('전체를 선택한 경우 다른 품목은 선택할 수 없습니다.')
@@ -201,7 +186,7 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
         labels = []
 
         if '전체' in selected_models:
-            selected_models = model_options[1:]  # 전체 품목을 가져옵니다.
+            selected_models = model_options[1:]
 
         models = {model_name: load_model(model_name, selected_types) for model_name in selected_models}
         
@@ -216,7 +201,6 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
                 'DAY': [single_date.day],
                 'DAY_OF': [7 if is_holiday else single_date.day_of_week+1],
                 'HOLIDAY': [1 if is_holiday else 0],
-            # ... 기타 필요한 변수들
              }
                 year = single_date.year
                 if year >= 2023:
@@ -235,10 +219,8 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
             
             # 예측 버튼을 클릭했을 때 레이블을 생성하는 부분
             if city_name:
-                # 도시 이름이 있을 경우
                 label = f"{selected_types}_{model_name}_{terminal_name}_{city_name}_{start_date.strftime('%Y-%m-%d')}~{end_date.strftime('%Y-%m-%d')}_{st.session_state['color_num']}_(time:{current_time.strftime('%H:%M:%S')})"
             else:
-                # 도시 이름이 없을 경우
                 label = f"{selected_types}_{model_name}_{terminal_name}_{start_date.strftime('%Y-%m-%d')}~{end_date.strftime('%Y-%m-%d')}_ _{st.session_state['color_num']}_(time:{current_time.strftime('%H:%M:%S')})"
 
             labels.append(label)
@@ -279,10 +261,6 @@ def show_prediction_page(all_terminals, gu_columns, all_city):
         font-size: 24px;
         color: rgb(255,229,180);
     }
-    # special-text{
-        font-size: 20px;
-        color: #0000ff;
-    }
     .footer {
     position: relative;
     top: 30px;
@@ -305,7 +283,6 @@ all_terminals = ['강남구', '강동구', '강북구', '강서구', '관악구'
                      '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', 
                      '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구']
 
-# 필요한 컬럼들을 리스트로 정의합니다.
 gu_columns = ['TOTAL_PEOPLE', 'RATE_UNDER 20s', 'RATE_20s-30s', 'RATE_40s-50s', 
                  'RATE_60s-70s', 'RATE_OVER 80s', 'RATE_20M_Won', 'RATE_30M_Won', 'RATE_40M_Won', 'RATE_50M_Won', 'RATE_60M_Won', 'RATE_70M_Won', 
                  'RATE_OVER_70M_Won', 'APT_PRICE_INDEX', 'APT_NUM', 'APT_RATE', 'NUM_INSU', 'INSU_MONEY', 'FOOD_TRASH', 'BIRTH_RATE', 'TOTAL_OIL', 
@@ -375,10 +352,6 @@ def add_bg_from_url():
 
     st.markdown(
          f"""
-         <style>
-            
-         </style>
-
             <div>
             <그래프 분석>
 

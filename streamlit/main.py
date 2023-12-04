@@ -13,11 +13,9 @@ from pages import interesting, prediction, team
 # sudo apt-get install iptables-persistent
 # ------ 포트포워딩 -----
 
-# 화면 크기조절 제거 고려
 st.set_page_config(layout="wide")
 
 def main():  
-    # st.title("메인화면")
     image_path = "./images/main3.png"
     st.image(image_path, caption='', use_column_width=True)
     st.sidebar.markdown("[Tableu(서울시)](https://public.tableau.com/app/profile/.13586515/viz/df3_1_re/12?publish=yes)")
@@ -102,9 +100,7 @@ def main():
         <p> mizimaaz@gmail.com  /  2023 DeliverEase </p>
     </div>
 
-"""
-# 현재 footer는 relactive 상태, fixed로 고정 가능
-
+    """
     st.markdown(html_css, unsafe_allow_html=True)
 
 if __name__ == "__main__":

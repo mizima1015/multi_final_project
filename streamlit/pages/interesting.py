@@ -31,23 +31,17 @@ def show_interesting():
     category = st.selectbox('Choose a category:', list(categories.keys()))
 
     # 선택된 카테고리에 해당하는 모든 이미지 표시
-    # 선택된 카테고리에 해당하는 모든 이미지 표시
     if category:
         image_paths = categories[category]
-        # 한 줄에 표시할 이미지 수를 정합니다.
         images_per_row = 3
-        # 이미지 수에 따라 필요한 컬럼 수를 계산합니다.
         num_rows = (len(image_paths) + images_per_row - 1) // images_per_row
     
         # 각 줄에 대한 반복
         for i in range(num_rows):
-            # 현재 줄에 대한 컬럼 생성
             cols = st.columns(images_per_row)
-            # 각 컬럼에 이미지 할당
             for j in range(images_per_row):
-                # 이미지 인덱스 계산
                 image_index = i * images_per_row + j
-                if image_index < len(image_paths):  # 이미지 리스트를 넘어가지 않도록
+                if image_index < len(image_paths):
                     with cols[j]:
                         st.image(image_paths[image_index], width=430)
 
